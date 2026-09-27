@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "plodovi-sela-web",
-      "runtimeExecutable": "flutter",
-      "runtimeArgs": ["run", "-d", "chrome", "--web-port", "5000"],
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd /d C:\\Projekti\\plodoviSela && flutter run -d web-server --web-port 5000 --web-hostname 0.0.0.0 -t lib/main.dart"],
       "port": 5000
     }
   ]

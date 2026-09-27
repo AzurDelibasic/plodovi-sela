@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/theme/app_gradients.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/screen_header.dart';
 import '../../../auth/domain/entities/app_role.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../domain/entities/order.dart';
@@ -19,102 +20,54 @@ class ProfileScreen extends ConsumerWidget {
         : user?.email ?? '';
 
     return Scaffold(
-      body: SizedBox.expand(
-        child: DecoratedBox(
-          decoration: const BoxDecoration(gradient: AppGradients.primary),
-          child: SafeArea(
-            bottom: false,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
-                  child: Row(
-                    children: [
-                      const CircleAvatar(
-                        radius: 24,
-                        backgroundColor: Colors.white24,
-                        child: Icon(Icons.person_outline, color: Colors.white),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              displayName,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                            ),
-                            if (user != null)
-                              Text(
-                                user.role.label,
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.85),
-                                  fontSize: 13,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.logout_rounded,
-                          color: Colors.white,
-                        ),
-                        tooltip: 'Odjava',
-                        onPressed: () =>
-                            ref.read(authRepositoryProvider).signOut(),
-                      ),
-                    ],
-                  ),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ScreenHeader(
+              title: displayName,
+              subtitle: user?.role.label,
+              leading: CircleAvatar(
+                radius: 22,
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.08),
+                child: Icon(
+                  Icons.person_outline,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
-                Expanded(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(28),
-                      ),
-                    ),
-                    child: ListView(
-                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-                      children: [
-                        Text(
-                          'Moje narudžbe',
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w700),
-                        ),
-                        const SizedBox(height: 12),
-                        _OrdersList(
-                          provider: myPurchasesProvider,
-                          asSeller: false,
-                        ),
-                        if (user?.role == AppRole.prodavac) ...[
-                          const SizedBox(height: 24),
-                          Text(
-                            'Primljene narudžbe',
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.w700),
-                          ),
-                          const SizedBox(height: 12),
-                          _OrdersList(
-                            provider: mySalesProvider,
-                            asSeller: true,
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
+              ),
+              actions: [
+                HeaderIconButton(
+                  icon: Icons.logout_rounded,
+                  tooltip: 'Odjava',
+                  onPressed: () => ref.read(authRepositoryProvider).signOut(),
                 ),
               ],
             ),
-          ),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+                children: [
+                  Text(
+                    'Moje narudžbe',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  _OrdersList(provider: myPurchasesProvider, asSeller: false),
+                  if (user?.role == AppRole.prodavac) ...[
+                    const SizedBox(height: 24),
+                    Text(
+                      'Primljene narudžbe',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    _OrdersList(provider: mySalesProvider, asSeller: true),
+                  ],
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -155,9 +108,7 @@ class _OrdersList extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text(
               asSeller ? 'Još nema primljenih narudžbi.' : 'Još nema narudžbi.',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+              style: const TextStyle(color: AppColors.textMuted),
             ),
           );
         }

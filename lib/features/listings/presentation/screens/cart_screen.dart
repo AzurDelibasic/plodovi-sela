@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/theme/app_gradients.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_toast.dart';
-import '../../../auth/presentation/widgets/gradient_pill_button.dart';
+import '../../../../core/widgets/screen_header.dart';
+import '../../../../core/widgets/soft_card.dart';
 import '../../domain/entities/cart_item.dart';
 import '../providers/listings_providers.dart';
 
@@ -65,127 +66,95 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     final cartAsync = ref.watch(cartItemsProvider);
 
     return Scaffold(
-      body: SizedBox.expand(
-        child: DecoratedBox(
-          decoration: const BoxDecoration(gradient: AppGradients.primary),
-          child: SafeArea(
-            bottom: false,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 4, 16, 12),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.white),
-                        onPressed: () => Navigator.of(context).maybePop(),
-                      ),
-                      Text(
-                        'Korpa',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ScreenHeader(
+              title: 'Korpa',
+              leading: HeaderIconButton(
+                icon: Icons.arrow_back,
+                tooltip: 'Nazad',
+                onPressed: () => Navigator.of(context).maybePop(),
+              ),
+            ),
+            Expanded(
+              child: cartAsync.when(
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, _) => Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text('Nije uspjelo učitavanje korpe.'),
+                        const SizedBox(height: 12),
+                        TextButton(
+                          onPressed: () => ref.invalidate(cartItemsProvider),
+                          child: const Text('Pokušaj ponovo'),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-                Expanded(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(28),
-                      ),
-                    ),
-                    child: cartAsync.when(
-                      loading: () =>
-                          const Center(child: CircularProgressIndicator()),
-                      error: (error, _) => Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(32),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Text('Nije uspjelo učitavanje korpe.'),
-                              const SizedBox(height: 12),
-                              TextButton(
-                                onPressed: () =>
-                                    ref.invalidate(cartItemsProvider),
-                                child: const Text('Pokušaj ponovo'),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      data: (items) {
-                        if (items.isEmpty) {
-                          return Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(32),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.shopping_basket_outlined,
-                                    size: 48,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
-                                  ),
-                                  const SizedBox(height: 16),
-                                  const Text('Korpa je prazna.'),
-                                ],
-                              ),
-                            ),
-                          );
-                        }
-
-                        final total = items.fold<double>(
-                          0,
-                          (sum, item) => sum + item.subtotal,
-                        );
-                        final canPickup = items.every((i) => i.pickupAvailable);
-                        final canDeliver = items.every(
-                          (i) => i.deliveryAvailable,
-                        );
-
-                        return Column(
+                data: (items) {
+                  if (items.isEmpty) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Expanded(
-                              child: ListView.builder(
-                                padding: const EdgeInsets.fromLTRB(
-                                  20,
-                                  16,
-                                  20,
-                                  8,
-                                ),
-                                itemCount: items.length,
-                                itemBuilder: (context, index) =>
-                                    _CartItemTile(item: items[index]),
-                              ),
+                            Icon(
+                              Icons.shopping_basket_outlined,
+                              size: 40,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
-                            _CheckoutBar(
-                              total: total,
-                              canPickup: canPickup,
-                              canDeliver: canDeliver,
-                              fulfillmentType: _fulfillmentType,
-                              addressController: _addressController,
-                              isCheckingOut: _isCheckingOut,
-                              onFulfillmentChanged: (value) =>
-                                  setState(() => _fulfillmentType = value),
-                              onCheckout: _checkout,
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Korpa je prazna.',
+                              style: TextStyle(color: AppColors.textMuted),
                             ),
                           ],
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ],
+                        ),
+                      ),
+                    );
+                  }
+
+                  final total = items.fold<double>(
+                    0,
+                    (sum, item) => sum + item.subtotal,
+                  );
+                  final canPickup = items.every((i) => i.pickupAvailable);
+                  final canDeliver = items.every((i) => i.deliveryAvailable);
+
+                  return Column(
+                    children: [
+                      Expanded(
+                        child: ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+                          itemCount: items.length,
+                          itemBuilder: (context, index) =>
+                              _CartItemTile(item: items[index]),
+                        ),
+                      ),
+                      _CheckoutBar(
+                        total: total,
+                        canPickup: canPickup,
+                        canDeliver: canDeliver,
+                        fulfillmentType: _fulfillmentType,
+                        addressController: _addressController,
+                        isCheckingOut: _isCheckingOut,
+                        onFulfillmentChanged: (value) =>
+                            setState(() => _fulfillmentType = value),
+                        onCheckout: _checkout,
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -227,13 +196,8 @@ class _CartItemTileState extends ConsumerState<_CartItemTile> {
 
     return Opacity(
       opacity: _isUpdating ? 0.5 : 1,
-      child: Container(
+      child: SoftCard(
         margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(16),
-        ),
         child: Row(
           children: [
             Expanded(
@@ -242,22 +206,21 @@ class _CartItemTileState extends ConsumerState<_CartItemTile> {
                 children: [
                   Text(
                     item.title,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
+                    style: Theme.of(context).textTheme.titleSmall,
                   ),
                   const SizedBox(height: 2),
                   Text(
                     item.sellerName,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
-                      color: colorScheme.onSurfaceVariant,
+                      color: AppColors.textMuted,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Text(
                     '${item.subtotal.toStringAsFixed(2)} KM',
-                    style: TextStyle(
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       color: colorScheme.primary,
-                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],
@@ -312,13 +275,13 @@ class _CheckoutBar extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 12,
-            offset: const Offset(0, -4),
+            color: Color(0x0A000000),
+            blurRadius: 16,
+            offset: Offset(0, -4),
           ),
         ],
       ),
@@ -350,7 +313,7 @@ class _CheckoutBar extends StatelessWidget {
               ),
             ),
           ],
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -361,18 +324,29 @@ class _CheckoutBar extends StatelessWidget {
               Text(
                 '${total.toStringAsFixed(2)} KM',
                 style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
                   color: colorScheme.primary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          GradientPillButton(
-            label: 'Naruči',
-            isLoading: isCheckingOut,
-            onPressed: isCheckingOut ? null : onCheckout,
+          const SizedBox(height: 14),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: isCheckingOut ? null : onCheckout,
+              child: isCheckingOut
+                  ? const SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text('Naruči'),
+            ),
           ),
         ],
       ),

@@ -3,149 +3,46 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_router.dart';
-import '../../../../core/theme/app_gradients.dart';
-import '../../../auth/domain/entities/app_role.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/screen_header.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../domain/entities/listing.dart';
 import '../providers/listings_providers.dart';
 import '../widgets/filter_dropdown.dart';
 import '../widgets/listing_card.dart';
 
-/// Home screen shown after login. The gradient header carries the user's
-/// identity/role and cart; the white sheet below hosts search, category
-/// filters and the listings themselves.
+/// Home screen shown after login: search + filters over the active
+/// listings feed.
 class ListingsScreen extends ConsumerWidget {
   const ListingsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authStateChangesProvider).asData?.value;
-    final displayName = user?.fullName?.trim().isNotEmpty == true
-        ? user!.fullName!.trim()
-        : user?.email ?? '';
+    final firstName = user?.fullName?.trim().isNotEmpty == true
+        ? user!.fullName!.trim().split(' ').first
+        : null;
     final cartCount = ref.watch(cartItemCountProvider).asData?.value ?? 0;
 
     return Scaffold(
-      body: SizedBox.expand(
-        child: DecoratedBox(
-          decoration: const BoxDecoration(gradient: AppGradients.primary),
-          child: SafeArea(
-            bottom: false,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 16, 12, 20),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.eco_rounded,
-                        color: Colors.white,
-                        size: 32,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Zdravo, $displayName',
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                            ),
-                            if (user != null) ...[
-                              const SizedBox(height: 4),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 3,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.18),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  user.role.label,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.shopping_basket_outlined,
-                              color: Colors.white,
-                            ),
-                            tooltip: 'Korpa',
-                            onPressed: () => context.push(AppRoutes.cart),
-                          ),
-                          if (cartCount > 0)
-                            Positioned(
-                              right: 4,
-                              top: 4,
-                              child: Container(
-                                padding: const EdgeInsets.all(3),
-                                constraints: const BoxConstraints(
-                                  minWidth: 16,
-                                  minHeight: 16,
-                                ),
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFB3261E),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Text(
-                                  '$cartCount',
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.logout_rounded,
-                          color: Colors.white,
-                        ),
-                        tooltip: 'Odjava',
-                        onPressed: () =>
-                            ref.read(authRepositoryProvider).signOut(),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(28),
-                      ),
-                    ),
-                    child: const _ListingsBody(),
-                  ),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ScreenHeader(
+              title: 'Plodovi sela',
+              subtitle: firstName != null ? 'Zdravo, $firstName' : null,
+              actions: [
+                HeaderIconButton(
+                  icon: Icons.shopping_basket_outlined,
+                  tooltip: 'Korpa',
+                  badgeCount: cartCount,
+                  onPressed: () => context.push(AppRoutes.cart),
                 ),
               ],
             ),
-          ),
+            const Expanded(child: _ListingsBody()),
+          ],
         ),
       ),
     );
@@ -198,28 +95,27 @@ class _ListingsBodyState extends ConsumerState<_ListingsBody> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
           child: TextField(
             controller: _searchController,
             onChanged: (value) => setState(() => _query = value),
             decoration: InputDecoration(
               hintText: 'Pretraži oglase...',
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: const Icon(Icons.search, size: 20),
               suffixIcon: _query.isEmpty
                   ? null
                   : IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Icons.close, size: 18),
                       onPressed: () => setState(() {
                         _searchController.clear();
                         _query = '';
                       }),
                     ),
-              contentPadding: EdgeInsets.zero,
             ),
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
           child: Row(
             children: [
               Expanded(
@@ -262,7 +158,6 @@ class _ListingsBodyState extends ConsumerState<_ListingsBody> {
             ],
           ),
         ),
-        const SizedBox(height: 8),
         Expanded(
           child: listingsAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -274,7 +169,7 @@ class _ListingsBodyState extends ConsumerState<_ListingsBody> {
                   children: [
                     Icon(
                       Icons.error_outline_rounded,
-                      size: 48,
+                      size: 40,
                       color: Theme.of(context).colorScheme.error,
                     ),
                     const SizedBox(height: 16),
@@ -304,7 +199,7 @@ class _ListingsBodyState extends ConsumerState<_ListingsBody> {
               return RefreshIndicator(
                 onRefresh: () => ref.refresh(activeListingsProvider.future),
                 child: ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                   itemCount: filtered.length,
                   itemBuilder: (context, index) => ListingCard(
                     listing: filtered[index],
@@ -338,12 +233,12 @@ class _EmptyListingsState extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Theme.of(
                   context,
-                ).colorScheme.primary.withValues(alpha: 0.1),
+                ).colorScheme.primary.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.storefront_outlined,
-                size: 48,
+                size: 40,
                 color: Theme.of(context).colorScheme.primary,
               ),
             ),
@@ -360,9 +255,7 @@ class _EmptyListingsState extends StatelessWidget {
                   'Ovdje će se pojaviti domaće namirnice iz tvoje okoline čim '
                       'prodavci počnu da ih objavljuju.',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+              style: const TextStyle(color: AppColors.textMuted),
             ),
           ],
         ),

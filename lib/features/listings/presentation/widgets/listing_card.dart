@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_toast.dart';
+import '../../../../core/widgets/soft_card.dart';
 import '../../domain/entities/listing.dart';
 import '../providers/listings_providers.dart';
 
@@ -47,28 +49,22 @@ class _ListingCardState extends ConsumerState<ListingCard> {
     final listing = widget.listing;
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.outlineVariant),
-      ),
+    return SoftCard(
+      margin: const EdgeInsets.only(bottom: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 56,
-            height: 56,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
-              color: colorScheme.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
+              color: colorScheme.primary.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(
               Icons.eco_outlined,
               color: colorScheme.primary,
-              size: 28,
+              size: 24,
             ),
           ),
           const SizedBox(width: 14),
@@ -81,9 +77,7 @@ class _ListingCardState extends ConsumerState<ListingCard> {
                     Expanded(
                       child: Text(
                         listing.title,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                        style: Theme.of(context).textTheme.titleSmall,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -94,20 +88,30 @@ class _ListingCardState extends ConsumerState<ListingCard> {
                         child: Icon(
                           Icons.spa_outlined,
                           size: 16,
-                          color: Color(0xFF2E6B3E),
+                          color: AppColors.seed,
                         ),
                       ),
                   ],
                 ),
+                const SizedBox(height: 3),
+                Text(
+                  '${listing.sellerName} · ${listing.categoryName}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textMuted,
+                  ),
+                ),
                 if (widget.cartQuantity > 0) ...[
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 3,
                     ),
                     decoration: BoxDecoration(
-                      color: colorScheme.primary.withValues(alpha: 0.12),
+                      color: colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -131,35 +135,7 @@ class _ListingCardState extends ConsumerState<ListingCard> {
                     ),
                   ),
                 ],
-                const SizedBox(height: 2),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.storefront_outlined,
-                      size: 12,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 3),
-                    Expanded(
-                      child: Text(
-                        listing.sellerName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  listing.categoryName,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -172,24 +148,21 @@ class _ListingCardState extends ConsumerState<ListingCard> {
                               Text(
                                 '${listing.price.toStringAsFixed(2)} KM/${listing.unit}',
                                 style: Theme.of(context).textTheme.titleSmall
-                                    ?.copyWith(
-                                      color: colorScheme.primary,
-                                      fontWeight: FontWeight.w700,
-                                    ),
+                                    ?.copyWith(color: colorScheme.primary),
                               ),
                               const SizedBox(width: 10),
                               Icon(
                                 Icons.place_outlined,
-                                size: 14,
-                                color: colorScheme.onSurfaceVariant,
+                                size: 13,
+                                color: AppColors.textMuted,
                               ),
                               const SizedBox(width: 2),
                               Text(
                                 listing.cityName,
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(
-                                      color: colorScheme.onSurfaceVariant,
-                                    ),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textMuted,
+                                ),
                               ),
                             ],
                           ),
@@ -258,22 +231,20 @@ class _Tag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        color: AppColors.background,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: colorScheme.onSurfaceVariant),
+          Icon(icon, size: 12, color: AppColors.textMuted),
           const SizedBox(width: 4),
           Text(
             label,
-            style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant),
+            style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
           ),
         ],
       ),

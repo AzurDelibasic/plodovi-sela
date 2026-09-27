@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_toast.dart';
+import '../../../../core/widgets/soft_card.dart';
 import '../../domain/entities/order.dart';
 import '../../domain/entities/order_status.dart';
 import '../providers/orders_providers.dart';
@@ -41,15 +43,15 @@ class _OrderCardState extends ConsumerState<OrderCard> {
   Color _statusColor(OrderStatus status, ColorScheme colorScheme) {
     switch (status) {
       case OrderStatus.pending:
-        return const Color(0xFFB6862C);
+        return AppColors.statusPending;
       case OrderStatus.confirmed:
-        return const Color(0xFF1B4B91);
+        return AppColors.statusConfirmed;
       case OrderStatus.ready:
-        return const Color(0xFF6B3FA0);
+        return AppColors.statusReady;
       case OrderStatus.completed:
         return colorScheme.primary;
       case OrderStatus.cancelled:
-        return colorScheme.error;
+        return AppColors.statusCancelled;
     }
   }
 
@@ -58,17 +60,12 @@ class _OrderCardState extends ConsumerState<OrderCard> {
     final order = widget.order;
     final colorScheme = Theme.of(context).colorScheme;
     final statusColor = _statusColor(order.status, colorScheme);
+    final actions = _actions();
 
     return Opacity(
       opacity: _isUpdating ? 0.6 : 1,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 14),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: colorScheme.surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: colorScheme.outlineVariant),
-        ),
+      child: SoftCard(
+        margin: const EdgeInsets.only(bottom: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -79,13 +76,13 @@ class _OrderCardState extends ConsumerState<OrderCard> {
                       ? Icons.person_outline
                       : Icons.storefront_outlined,
                   size: 16,
-                  color: colorScheme.onSurfaceVariant,
+                  color: AppColors.textMuted,
                 ),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
                     order.counterpartName,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
+                    style: Theme.of(context).textTheme.titleSmall,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -110,19 +107,19 @@ class _OrderCardState extends ConsumerState<OrderCard> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             for (final item in order.items)
               Padding(
                 padding: const EdgeInsets.only(bottom: 2),
                 child: Text(
                   '${item.quantity.toStringAsFixed(item.quantity.truncateToDouble() == item.quantity ? 0 : 2)}x ${item.title}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13,
-                    color: colorScheme.onSurfaceVariant,
+                    color: AppColors.textMuted,
                   ),
                 ),
               ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Row(
               children: [
                 Icon(
@@ -130,34 +127,37 @@ class _OrderCardState extends ConsumerState<OrderCard> {
                       ? Icons.local_shipping_outlined
                       : Icons.storefront_outlined,
                   size: 14,
-                  color: colorScheme.onSurfaceVariant,
+                  color: AppColors.textMuted,
                 ),
                 const SizedBox(width: 4),
-                Text(
-                  order.fulfillmentType == 'delivery'
-                      ? 'Dostava${order.deliveryAddress != null ? ' — ${order.deliveryAddress}' : ''}'
-                      : 'Preuzimanje',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: colorScheme.onSurfaceVariant,
+                Expanded(
+                  child: Text(
+                    order.fulfillmentType == 'delivery'
+                        ? 'Dostava${order.deliveryAddress != null ? ' — ${order.deliveryAddress}' : ''}'
+                        : 'Preuzimanje',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textMuted,
+                    ),
                   ),
                 ),
-                const Spacer(),
+                const SizedBox(width: 8),
                 Text(
                   '${order.totalAmount.toStringAsFixed(2)} KM',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: colorScheme.primary,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(color: colorScheme.primary),
                 ),
               ],
             ),
-            if (_actions().isNotEmpty) ...[
-              const SizedBox(height: 10),
+            if (actions.isNotEmpty) ...[
+              const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  for (final action in _actions()) ...[
+                  for (final action in actions) ...[
                     action,
                     const SizedBox(width: 8),
                   ],
@@ -170,6 +170,17 @@ class _OrderCardState extends ConsumerState<OrderCard> {
     );
   }
 
+  static final _compactButtonStyle = FilledButton.styleFrom(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+    minimumSize: Size.zero,
+    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+  );
+  static final _compactTextButtonStyle = TextButton.styleFrom(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+    minimumSize: Size.zero,
+    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+  );
+
   List<Widget> _actions() {
     if (_isUpdating) return [];
     final status = widget.order.status;
@@ -179,10 +190,12 @@ class _OrderCardState extends ConsumerState<OrderCard> {
         case OrderStatus.pending:
           return [
             TextButton(
+              style: _compactTextButtonStyle,
               onPressed: () => _setStatus('cancelled'),
               child: const Text('Otkaži'),
             ),
             FilledButton(
+              style: _compactButtonStyle,
               onPressed: () => _setStatus('confirmed'),
               child: const Text('Potvrdi'),
             ),
@@ -190,6 +203,7 @@ class _OrderCardState extends ConsumerState<OrderCard> {
         case OrderStatus.confirmed:
           return [
             FilledButton(
+              style: _compactButtonStyle,
               onPressed: () => _setStatus('ready'),
               child: const Text('Spremno'),
             ),
@@ -197,6 +211,7 @@ class _OrderCardState extends ConsumerState<OrderCard> {
         case OrderStatus.ready:
           return [
             FilledButton(
+              style: _compactButtonStyle,
               onPressed: () => _setStatus('completed'),
               child: const Text('Završi'),
             ),
@@ -209,6 +224,7 @@ class _OrderCardState extends ConsumerState<OrderCard> {
       if (status == OrderStatus.pending) {
         return [
           TextButton(
+            style: _compactTextButtonStyle,
             onPressed: () => _setStatus('cancelled'),
             child: const Text('Otkaži narudžbu'),
           ),
