@@ -126,6 +126,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, Unit>> updateProfile({
     String? fullName,
+    String? farmName,
     String? bio,
     int? cityId,
     Uint8List? avatarBytes,
@@ -133,6 +134,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _remote.updateProfile(
         fullName: fullName,
+        farmName: farmName,
         bio: bio,
         cityId: cityId,
         avatarBytes: avatarBytes,

@@ -12,6 +12,7 @@ class UpdateProfileUseCase {
 
   Future<Either<Failure, Unit>> call({
     String? fullName,
+    String? farmName,
     String? bio,
     int? cityId,
     Uint8List? avatarBytes,
@@ -23,6 +24,7 @@ class UpdateProfileUseCase {
     }
     return _repository.updateProfile(
       fullName: fullName?.trim(),
+      farmName: farmName?.trim(),
       bio: bio,
       cityId: cityId,
       avatarBytes: avatarBytes,

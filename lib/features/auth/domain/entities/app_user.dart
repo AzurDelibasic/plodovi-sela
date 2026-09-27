@@ -17,6 +17,7 @@ class AppUser extends Equatable {
     this.bio,
     this.cityId,
     this.cityName,
+    this.farmName,
   });
 
   final String id;
@@ -30,6 +31,11 @@ class AppUser extends Equatable {
   final String? bio;
   final int? cityId;
   final String? cityName;
+
+  /// The farm's public display name — distinct from [fullName], which
+  /// stays the name the account registered with. Null/blank means the
+  /// storefront falls back to [fullName].
+  final String? farmName;
 
   /// Whether this account can sign in with e-mail + password. `false` for
   /// an account created purely through Google — the router forces those
@@ -48,6 +54,7 @@ class AppUser extends Equatable {
     bio,
     cityId,
     cityName,
+    farmName,
     hasPasswordIdentity,
   ];
 }

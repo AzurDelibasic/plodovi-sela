@@ -69,6 +69,7 @@ class AuthRemoteDataSource {
         bio: row['bio'] as String?,
         cityId: row['city_id'] as int?,
         cityName: row['city_name'] as String?,
+        farmName: row['farm_name'] as String?,
       );
     } catch (_) {
       return AppUserModel.fromSupabaseUser(user, role: AppRole.kupac);
@@ -201,6 +202,7 @@ class AuthRemoteDataSource {
   /// `public.profiles` write.
   Future<void> updateProfile({
     String? fullName,
+    String? farmName,
     String? bio,
     int? cityId,
     Uint8List? avatarBytes,
@@ -231,6 +233,7 @@ class AuthRemoteDataSource {
 
       final updates = <String, dynamic>{
         if (fullName != null) 'full_name': fullName,
+        if (farmName != null) 'farm_name': farmName,
         if (bio != null) 'bio': bio,
         if (cityId != null) 'city_id': cityId,
         if (avatarUrl != null) 'avatar_url': avatarUrl,

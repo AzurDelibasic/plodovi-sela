@@ -1,13 +1,19 @@
 import 'dart:typed_data';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/screen_header.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../farms/domain/entities/farm_image.dart';
+import '../../../farms/presentation/providers/farms_providers.dart';
 import '../../../listings/presentation/providers/listings_providers.dart';
+
+const _maxFarmImages = 6;
 
 /// Lets a seller edit their public storefront: display name, avatar, short
 /// bio and city. Only reachable from [ProfileScreen] for a `prodavac`.
@@ -19,16 +25,17 @@ class EditProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
-  late final TextEditingController _nameController;
+  late final TextEditingController _farmNameController;
   late final TextEditingController _bioController;
   int? _cityId;
   Uint8List? _newAvatarBytes;
   bool _isSubmitting = false;
   bool _initialized = false;
+  bool _isUploadingGallery = false;
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _farmNameController.dispose();
     _bioController.dispose();
     super.dispose();
   }
@@ -44,12 +51,45 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     setState(() => _newAvatarBytes = bytes);
   }
 
+  Future<void> _addGalleryImages(int remainingSlots) async {
+    final picked = await ImagePicker().pickMultiImage(imageQuality: 85);
+    if (picked.isEmpty) return;
+
+    setState(() => _isUploadingGallery = true);
+    for (final file in picked.take(remainingSlots)) {
+      final bytes = await file.readAsBytes();
+      final result = await ref
+          .read(farmsRepositoryProvider)
+          .addFarmImage(bytes);
+      if (!mounted) return;
+      final failure = result.fold((f) => f, (_) => null);
+      if (failure != null) {
+        AppToast.show(context, message: failure.message);
+        break;
+      }
+    }
+    if (!mounted) return;
+    setState(() => _isUploadingGallery = false);
+    ref.invalidate(myFarmImagesProvider);
+  }
+
+  Future<void> _removeGalleryImage(FarmImage image) async {
+    final result = await ref
+        .read(farmsRepositoryProvider)
+        .removeFarmImage(image.id);
+    if (!mounted) return;
+    result.fold(
+      (failure) => AppToast.show(context, message: failure.message),
+      (_) => ref.invalidate(myFarmImagesProvider),
+    );
+  }
+
   Future<void> _submit() async {
     setState(() => _isSubmitting = true);
     final result = await ref
         .read(updateProfileUseCaseProvider)
         .call(
-          fullName: _nameController.text,
+          farmName: _farmNameController.text.trim(),
           bio: _bioController.text.trim(),
           cityId: _cityId,
           avatarBytes: _newAvatarBytes,
@@ -76,7 +116,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final colorScheme = Theme.of(context).colorScheme;
 
     if (!_initialized && user != null) {
-      _nameController = TextEditingController(text: user.fullName ?? '');
+      _farmNameController = TextEditingController(text: user.farmName ?? '');
       _bioController = TextEditingController(text: user.bio ?? '');
       _cityId = user.cityId;
       _initialized = true;
@@ -123,7 +163,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   _newAvatarBytes == null &&
                                       user?.avatarUrl == null
                                   ? Icon(
-                                      Icons.agriculture_outlined,
+                                      Icons.person_outline,
                                       color: colorScheme.primary,
                                       size: 36,
                                     )
@@ -149,11 +189,25 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 6),
+                    Center(
+                      child: Text(
+                        'Vaša profilna slika (lična, ne farma)',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textMuted,
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 24),
                     TextField(
-                      controller: _nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Naziv farme / ime',
+                      controller: _farmNameController,
+                      decoration: InputDecoration(
+                        labelText: 'Naziv farme',
+                        helperText: user?.fullName == null
+                            ? 'Ostavi prazno da koristiš svoje registrovano ime.'
+                            : 'Ostavi prazno da koristiš ime naloga: ${user!.fullName}',
+                        helperMaxLines: 2,
                       ),
                     ),
                     const SizedBox(height: 14),
@@ -181,6 +235,23 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         onChanged: (value) => setState(() => _cityId = value),
                       ),
                     ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'Galerija farme',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Ove slike se prikazuju na kartici farme — odvojene su '
+                      'od vaše profilne slike.',
+                      style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                    ),
+                    const SizedBox(height: 10),
+                    _FarmGallery(
+                      isUploading: _isUploadingGallery,
+                      onAdd: _addGalleryImages,
+                      onRemove: _removeGalleryImage,
+                    ),
                     const SizedBox(height: 20),
                     SizedBox(
                       width: double.infinity,
@@ -203,6 +274,114 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _FarmGallery extends ConsumerWidget {
+  const _FarmGallery({
+    required this.isUploading,
+    required this.onAdd,
+    required this.onRemove,
+  });
+
+  final bool isUploading;
+  final void Function(int remainingSlots) onAdd;
+  final void Function(FarmImage image) onRemove;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final imagesAsync = ref.watch(myFarmImagesProvider);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return imagesAsync.when(
+      loading: () => const SizedBox(
+        height: 84,
+        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      ),
+      error: (_, _) => const Text(
+        'Nije uspjelo učitavanje galerije.',
+        style: TextStyle(color: AppColors.textMuted),
+      ),
+      data: (images) {
+        final remainingSlots = _maxFarmImages - images.length;
+        return SizedBox(
+          height: 84,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: [
+              for (final image in images)
+                Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: CachedNetworkImage(
+                          imageUrl: image.url,
+                          width: 84,
+                          height: 84,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Positioned(
+                        top: -6,
+                        right: -6,
+                        child: Material(
+                          color: AppColors.textPrimary,
+                          shape: const CircleBorder(),
+                          child: InkWell(
+                            customBorder: const CircleBorder(),
+                            onTap: () => onRemove(image),
+                            child: const Padding(
+                              padding: EdgeInsets.all(4),
+                              child: Icon(
+                                Icons.close,
+                                size: 14,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              if (remainingSlots > 0)
+                Material(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.circular(14),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(14),
+                    onTap: isUploading ? null : () => onAdd(remainingSlots),
+                    child: Container(
+                      width: 84,
+                      height: 84,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: AppColors.outline),
+                      ),
+                      child: isUploading
+                          ? const Center(
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            )
+                          : Icon(
+                              Icons.add_photo_alternate_outlined,
+                              color: colorScheme.primary,
+                            ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

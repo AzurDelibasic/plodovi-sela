@@ -9,9 +9,13 @@ class FarmModel extends Farm {
     super.avatarUrl,
     super.bio,
     super.cityName,
+    super.imageUrls,
   });
 
-  factory FarmModel.fromJson(Map<String, dynamic> json) {
+  factory FarmModel.fromJson(
+    Map<String, dynamic> json, {
+    List<String> imageUrls = const [],
+  }) {
     final name = (json['full_name'] as String?)?.trim();
     return FarmModel(
       id: json['id'] as String,
@@ -21,6 +25,7 @@ class FarmModel extends Farm {
       cityName: json['city_name'] as String?,
       avgRating: (json['avg_rating'] as num).toDouble(),
       reviewCount: json['review_count'] as int,
+      imageUrls: imageUrls,
     );
   }
 }

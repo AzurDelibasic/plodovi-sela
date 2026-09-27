@@ -32,12 +32,23 @@ final categoriesProvider = FutureProvider.autoDispose<List<Category>>((
   ref,
 ) async {
   final result = await ref.watch(listingsRepositoryProvider).getCategories();
-  return result.fold((failure) => throw failure, (categories) => categories);
+  return result.fold(
+    (failure) => throw failure,
+    (categories) =>
+        [...categories]..sort(
+          (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+        ),
+  );
 });
 
 final citiesProvider = FutureProvider.autoDispose<List<City>>((ref) async {
   final result = await ref.watch(listingsRepositoryProvider).getCities();
-  return result.fold((failure) => throw failure, (cities) => cities);
+  return result.fold(
+    (failure) => throw failure,
+    (cities) => [...cities]..sort(
+      (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+    ),
+  );
 });
 
 final cartItemCountProvider = FutureProvider.autoDispose<int>((ref) async {

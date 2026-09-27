@@ -9,6 +9,7 @@ import '../../../listings/presentation/providers/listings_providers.dart';
 import '../../../listings/presentation/widgets/listing_card.dart';
 import '../../domain/entities/seller_review.dart';
 import '../providers/farms_providers.dart';
+import '../widgets/farm_image_banner.dart';
 
 class FarmDetailScreen extends ConsumerWidget {
   const FarmDetailScreen({super.key, required this.sellerId});
@@ -43,6 +44,12 @@ class FarmDetailScreen extends ConsumerWidget {
                   return ListView(
                     padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                     children: [
+                      FarmImageBanner(
+                        imageUrls: farm.imageUrls,
+                        height: 200,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      const SizedBox(height: 16),
                       Row(
                         children: [
                           CircleAvatar(
@@ -55,7 +62,7 @@ class FarmDetailScreen extends ConsumerWidget {
                                 : null,
                             child: farm.avatarUrl == null
                                 ? Icon(
-                                    Icons.agriculture_outlined,
+                                    Icons.person_outline,
                                     color: colorScheme.primary,
                                     size: 34,
                                   )

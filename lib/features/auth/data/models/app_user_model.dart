@@ -16,6 +16,7 @@ class AppUserModel extends AppUser {
     super.bio,
     super.cityId,
     super.cityName,
+    super.farmName,
   });
 
   factory AppUserModel.fromSupabaseUser(

@@ -5,6 +5,7 @@ import '../../../listings/domain/entities/listing.dart';
 import '../../data/datasources/farms_remote_datasource.dart';
 import '../../data/repositories/farms_repository_impl.dart';
 import '../../domain/entities/farm.dart';
+import '../../domain/entities/farm_image.dart';
 import '../../domain/entities/seller_review.dart';
 import '../../domain/repositories/farms_repository.dart';
 
@@ -44,3 +45,10 @@ final farmReviewsProvider = FutureProvider.autoDispose
           .getFarmReviews(sellerId);
       return result.fold((failure) => throw failure, (reviews) => reviews);
     });
+
+final myFarmImagesProvider = FutureProvider.autoDispose<List<FarmImage>>((
+  ref,
+) async {
+  final result = await ref.watch(farmsRepositoryProvider).getMyFarmImages();
+  return result.fold((failure) => throw failure, (images) => images);
+});

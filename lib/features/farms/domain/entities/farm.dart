@@ -10,15 +10,22 @@ class Farm extends Equatable {
     this.avatarUrl,
     this.bio,
     this.cityName,
+    this.imageUrls = const [],
   });
 
   final String id;
   final String name;
+
+  /// The seller's personal profile picture — distinct from [imageUrls],
+  /// the farm's own photo gallery.
   final String? avatarUrl;
   final String? bio;
   final String? cityName;
   final double avgRating;
   final int reviewCount;
+
+  /// The farm's photo gallery, in display order.
+  final List<String> imageUrls;
 
   @override
   List<Object?> get props => [
@@ -29,5 +36,6 @@ class Farm extends Equatable {
     cityName,
     avgRating,
     reviewCount,
+    imageUrls,
   ];
 }

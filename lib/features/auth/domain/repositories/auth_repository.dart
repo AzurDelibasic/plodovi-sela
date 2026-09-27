@@ -43,12 +43,14 @@ abstract interface class AuthRepository {
   /// account. See [AppUser.hasPasswordIdentity].
   Future<Either<Failure, Unit>> setPassword(String password);
 
-  /// Updates the caller's own storefront fields — a seller's public name,
-  /// bio, city and avatar. Every field is optional; only the ones passed
-  /// are changed. [authStateChanges] re-emits the refreshed user on
-  /// success.
+  /// Updates the caller's own storefront fields — the farm's public
+  /// display name, bio, city and avatar. [fullName] is the account's own
+  /// registered name and is deliberately separate from [farmName]. Every
+  /// field is optional; only the ones passed are changed.
+  /// [authStateChanges] re-emits the refreshed user on success.
   Future<Either<Failure, Unit>> updateProfile({
     String? fullName,
+    String? farmName,
     String? bio,
     int? cityId,
     Uint8List? avatarBytes,
