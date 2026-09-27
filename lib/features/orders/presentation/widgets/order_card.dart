@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_surface_colors.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/soft_card.dart';
 import '../../domain/entities/order.dart';
@@ -59,6 +60,7 @@ class _OrderCardState extends ConsumerState<OrderCard> {
   Widget build(BuildContext context) {
     final order = widget.order;
     final colorScheme = Theme.of(context).colorScheme;
+    final surfaceColors = context.surfaceColors;
     final statusColor = _statusColor(order.status, colorScheme);
     final actions = _actions();
 
@@ -76,7 +78,7 @@ class _OrderCardState extends ConsumerState<OrderCard> {
                       ? Icons.person_outline
                       : Icons.storefront_outlined,
                   size: 16,
-                  color: AppColors.textMuted,
+                  color: surfaceColors.textMuted,
                 ),
                 const SizedBox(width: 4),
                 Expanded(
@@ -113,9 +115,9 @@ class _OrderCardState extends ConsumerState<OrderCard> {
                 padding: const EdgeInsets.only(bottom: 2),
                 child: Text(
                   '${item.quantity.toStringAsFixed(item.quantity.truncateToDouble() == item.quantity ? 0 : 2)}x ${item.title}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.textMuted,
+                    color: surfaceColors.textMuted,
                   ),
                 ),
               ),
@@ -127,7 +129,7 @@ class _OrderCardState extends ConsumerState<OrderCard> {
                       ? Icons.local_shipping_outlined
                       : Icons.storefront_outlined,
                   size: 14,
-                  color: AppColors.textMuted,
+                  color: surfaceColors.textMuted,
                 ),
                 const SizedBox(width: 4),
                 Expanded(
@@ -137,9 +139,9 @@ class _OrderCardState extends ConsumerState<OrderCard> {
                         : 'Preuzimanje',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textMuted,
+                      color: surfaceColors.textMuted,
                     ),
                   ),
                 ),

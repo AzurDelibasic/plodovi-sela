@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_surface_colors.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/soft_card.dart';
 import '../../domain/entities/listing.dart';
@@ -50,6 +51,7 @@ class _ListingCardState extends ConsumerState<ListingCard> {
   Widget build(BuildContext context) {
     final listing = widget.listing;
     final colorScheme = Theme.of(context).colorScheme;
+    final surfaceColors = context.surfaceColors;
 
     return SoftCard(
       margin: const EdgeInsets.only(bottom: 12),
@@ -175,9 +177,9 @@ class _ListingCardState extends ConsumerState<ListingCard> {
                   '${listing.sellerName} · ${listing.categoryName}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textMuted,
+                    color: surfaceColors.textMuted,
                   ),
                 ),
                 if (widget.cartQuantity > 0) ...[
@@ -231,14 +233,14 @@ class _ListingCardState extends ConsumerState<ListingCard> {
                               Icon(
                                 Icons.place_outlined,
                                 size: 13,
-                                color: AppColors.textMuted,
+                                color: surfaceColors.textMuted,
                               ),
                               const SizedBox(width: 2),
                               Text(
                                 listing.cityName,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12,
-                                  color: AppColors.textMuted,
+                                  color: surfaceColors.textMuted,
                                 ),
                               ),
                             ],
@@ -308,20 +310,21 @@ class _Tag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final surfaceColors = context.surfaceColors;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: surfaceColors.background,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: AppColors.textMuted),
+          Icon(icon, size: 12, color: surfaceColors.textMuted),
           const SizedBox(width: 4),
           Text(
             label,
-            style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+            style: TextStyle(fontSize: 11, color: surfaceColors.textMuted),
           ),
         ],
       ),

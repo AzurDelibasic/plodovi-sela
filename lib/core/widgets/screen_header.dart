@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/app_surface_colors.dart';
 
 /// The flat, minimal header used at the top of every in-app screen —
 /// replaces the earlier full-gradient hero block. Title is large and bold,
@@ -46,8 +47,8 @@ class ScreenHeader extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 2),
                       child: Text(
                         subtitle!,
-                        style: const TextStyle(
-                          color: AppColors.textMuted,
+                        style: TextStyle(
+                          color: context.surfaceColors.textMuted,
                           fontSize: 13,
                         ),
                       ),
@@ -82,15 +83,16 @@ class HeaderIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final surfaceColors = context.surfaceColors;
     final button = Material(
-      color: AppColors.background,
+      color: surfaceColors.background,
       shape: const CircleBorder(),
       child: InkWell(
         customBorder: const CircleBorder(),
         onTap: onPressed,
         child: Padding(
           padding: const EdgeInsets.all(10),
-          child: Icon(icon, size: 20, color: AppColors.textPrimary),
+          child: Icon(icon, size: 20, color: surfaceColors.textPrimary),
         ),
       ),
     );

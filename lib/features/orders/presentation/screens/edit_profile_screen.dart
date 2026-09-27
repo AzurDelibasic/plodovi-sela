@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_surface_colors.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/screen_header.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
@@ -193,9 +193,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     Center(
                       child: Text(
                         'Vaša profilna slika (lična, ne farma)',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textMuted,
+                          color: context.surfaceColors.textMuted,
                         ),
                       ),
                     ),
@@ -241,10 +241,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
                     const SizedBox(height: 4),
-                    const Text(
+                    Text(
                       'Ove slike se prikazuju na kartici farme — odvojene su '
                       'od vaše profilne slike.',
-                      style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: context.surfaceColors.textMuted,
+                      ),
                     ),
                     const SizedBox(height: 10),
                     _FarmGallery(
@@ -293,15 +296,16 @@ class _FarmGallery extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final imagesAsync = ref.watch(myFarmImagesProvider);
     final colorScheme = Theme.of(context).colorScheme;
+    final surfaceColors = context.surfaceColors;
 
     return imagesAsync.when(
       loading: () => const SizedBox(
         height: 84,
         child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
       ),
-      error: (_, _) => const Text(
+      error: (_, _) => Text(
         'Nije uspjelo učitavanje galerije.',
-        style: TextStyle(color: AppColors.textMuted),
+        style: TextStyle(color: surfaceColors.textMuted),
       ),
       data: (images) {
         final remainingSlots = _maxFarmImages - images.length;
@@ -328,7 +332,7 @@ class _FarmGallery extends ConsumerWidget {
                         top: -6,
                         right: -6,
                         child: Material(
-                          color: AppColors.textPrimary,
+                          color: surfaceColors.textPrimary,
                           shape: const CircleBorder(),
                           child: InkWell(
                             customBorder: const CircleBorder(),
@@ -349,7 +353,7 @@ class _FarmGallery extends ConsumerWidget {
                 ),
               if (remainingSlots > 0)
                 Material(
-                  color: AppColors.background,
+                  color: surfaceColors.background,
                   borderRadius: BorderRadius.circular(14),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(14),
@@ -359,7 +363,7 @@ class _FarmGallery extends ConsumerWidget {
                       height: 84,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: AppColors.outline),
+                        border: Border.all(color: surfaceColors.outline),
                       ),
                       child: isUploading
                           ? const Center(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_surface_colors.dart';
 
 /// A styled, typeable dropdown filter (category, city, ...). Built on
 /// Flutter's [DropdownMenu], which already supports typing to filter the
@@ -27,6 +27,7 @@ class FilterDropdown<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final surfaceColors = context.surfaceColors;
 
     return DropdownMenu<T>(
       initialSelection: value,
@@ -40,15 +41,15 @@ class FilterDropdown<T> extends StatelessWidget {
       inputDecorationTheme: InputDecorationTheme(
         isDense: true,
         filled: true,
-        fillColor: AppColors.background,
+        fillColor: surfaceColors.background,
         contentPadding: const EdgeInsets.symmetric(horizontal: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.outline),
+          borderSide: BorderSide(color: surfaceColors.outline),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.outline),
+          borderSide: BorderSide(color: surfaceColors.outline),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),

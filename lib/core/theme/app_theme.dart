@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
+import 'app_surface_colors.dart';
 
 /// Light/dark [ThemeData] built from a single Material 3 color scheme seed.
 ///
@@ -16,54 +17,65 @@ abstract final class AppTheme {
 
   static ThemeData _themeFrom(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
+    final surfaceColors = isDark
+        ? AppSurfaceColors.dark
+        : AppSurfaceColors.light;
     final colorScheme = ColorScheme.fromSeed(
       seedColor: AppColors.seed,
       brightness: brightness,
-      surface: isDark ? null : AppColors.surface,
+      surface: surfaceColors.surface,
     );
     final baseTextTheme = GoogleFonts.manropeTextTheme();
-    final textTheme = baseTextTheme.copyWith(
-      headlineMedium: baseTextTheme.headlineMedium?.copyWith(
-        fontWeight: FontWeight.w800,
-        letterSpacing: -0.5,
-      ),
-      titleLarge: baseTextTheme.titleLarge?.copyWith(
-        fontWeight: FontWeight.w800,
-        letterSpacing: -0.3,
-      ),
-      titleMedium: baseTextTheme.titleMedium?.copyWith(
-        fontWeight: FontWeight.w700,
-      ),
-      titleSmall: baseTextTheme.titleSmall?.copyWith(
-        fontWeight: FontWeight.w700,
-      ),
-      bodyMedium: baseTextTheme.bodyMedium?.copyWith(height: 1.35),
-      bodySmall: baseTextTheme.bodySmall?.copyWith(height: 1.3),
-    );
+    // GoogleFonts.manropeTextTheme() carries fixed light-mode colors (it's
+    // not derived from our colorScheme) — .apply() re-tints every style to
+    // the current brightness so headings don't render as dark-on-dark once
+    // dark mode is on.
+    final textTheme = baseTextTheme
+        .copyWith(
+          headlineMedium: baseTextTheme.headlineMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.5,
+          ),
+          titleLarge: baseTextTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.3,
+          ),
+          titleMedium: baseTextTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+          titleSmall: baseTextTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+          bodyMedium: baseTextTheme.bodyMedium?.copyWith(height: 1.35),
+          bodySmall: baseTextTheme.bodySmall?.copyWith(height: 1.3),
+        )
+        .apply(
+          bodyColor: surfaceColors.textPrimary,
+          displayColor: surfaceColors.textPrimary,
+        );
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: isDark
-          ? colorScheme.surface
-          : AppColors.background,
+      extensions: [surfaceColors],
+      scaffoldBackgroundColor: surfaceColors.background,
       textTheme: textTheme,
       splashFactory: InkSparkle.splashFactory,
       appBarTheme: AppBarTheme(
-        backgroundColor: isDark ? colorScheme.surface : AppColors.background,
+        backgroundColor: surfaceColors.background,
         foregroundColor: colorScheme.onSurface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
         titleTextStyle: textTheme.titleLarge?.copyWith(
-          color: isDark ? colorScheme.onSurface : AppColors.textPrimary,
+          color: surfaceColors.textPrimary,
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: isDark
             ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.4)
-            : AppColors.background,
+            : surfaceColors.background,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 18,
           vertical: 15,
@@ -71,13 +83,13 @@ abstract final class AppTheme {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(
-            color: isDark ? Colors.transparent : AppColors.outline,
+            color: isDark ? Colors.transparent : surfaceColors.outline,
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(
-            color: isDark ? Colors.transparent : AppColors.outline,
+            color: isDark ? Colors.transparent : surfaceColors.outline,
           ),
         ),
         focusedBorder: OutlineInputBorder(
@@ -88,7 +100,7 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(color: colorScheme.error, width: 1.2),
         ),
-        hintStyle: TextStyle(color: AppColors.textMuted),
+        hintStyle: TextStyle(color: surfaceColors.textMuted),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -125,18 +137,18 @@ abstract final class AppTheme {
         ),
       ),
       cardTheme: CardThemeData(
-        color: AppColors.surface,
+        color: surfaceColors.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         clipBehavior: Clip.antiAlias,
       ),
-      dividerTheme: const DividerThemeData(
-        color: AppColors.outline,
+      dividerTheme: DividerThemeData(
+        color: surfaceColors.outline,
         thickness: 1,
         space: 1,
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: AppColors.surface,
+        backgroundColor: surfaceColors.surface,
         elevation: 0,
         height: 68,
         indicatorColor: colorScheme.primary.withValues(alpha: 0.12),
@@ -145,18 +157,18 @@ abstract final class AppTheme {
           return TextStyle(
             fontSize: 12,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected ? colorScheme.primary : AppColors.textMuted,
+            color: selected ? colorScheme.primary : surfaceColors.textMuted,
           );
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           final selected = states.contains(WidgetState.selected);
           return IconThemeData(
-            color: selected ? colorScheme.primary : AppColors.textMuted,
+            color: selected ? colorScheme.primary : surfaceColors.textMuted,
           );
         }),
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: AppColors.background,
+        backgroundColor: surfaceColors.background,
         side: BorderSide.none,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),

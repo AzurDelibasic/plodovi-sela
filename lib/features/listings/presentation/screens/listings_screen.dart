@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_router.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_surface_colors.dart';
 import '../../../../core/widgets/screen_header.dart';
 import '../../../auth/domain/entities/app_role.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
@@ -263,7 +263,7 @@ class _EmptyListingsState extends StatelessWidget {
                   'Ovdje će se pojaviti domaće namirnice iz tvoje okoline čim '
                       'prodavci počnu da ih objavljuju.',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textMuted),
+              style: TextStyle(color: context.surfaceColors.textMuted),
             ),
           ],
         ),

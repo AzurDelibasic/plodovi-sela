@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_surface_colors.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/screen_header.dart';
 import '../providers/listings_providers.dart';
@@ -295,6 +295,7 @@ class _ImagePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final surfaceColors = context.surfaceColors;
 
     return SizedBox(
       height: 84,
@@ -319,7 +320,7 @@ class _ImagePicker extends StatelessWidget {
                     top: -6,
                     right: -6,
                     child: Material(
-                      color: AppColors.textPrimary,
+                      color: surfaceColors.textPrimary,
                       shape: const CircleBorder(),
                       child: InkWell(
                         customBorder: const CircleBorder(),
@@ -340,7 +341,7 @@ class _ImagePicker extends StatelessWidget {
             ),
           if (images.length < _maxImages)
             Material(
-              color: AppColors.background,
+              color: surfaceColors.background,
               borderRadius: BorderRadius.circular(14),
               child: InkWell(
                 borderRadius: BorderRadius.circular(14),
@@ -350,7 +351,7 @@ class _ImagePicker extends StatelessWidget {
                   height: 84,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppColors.outline),
+                    border: Border.all(color: surfaceColors.outline),
                   ),
                   child: Icon(
                     Icons.add_photo_alternate_outlined,

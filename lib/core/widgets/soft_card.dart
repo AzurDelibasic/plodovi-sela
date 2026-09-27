@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
+import '../theme/app_surface_colors.dart';
 
 /// The one card style used everywhere (listings, farms, orders): white,
 /// rounded, a soft shadow instead of a border. Centralized so every card
@@ -22,14 +22,15 @@ class SoftCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final content = Container(
       margin: margin,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.surfaceColors.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.24 : 0.04),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),

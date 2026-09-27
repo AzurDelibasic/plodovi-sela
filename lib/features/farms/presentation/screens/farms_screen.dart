@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_router.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_surface_colors.dart';
 import '../../../../core/widgets/screen_header.dart';
 import '../providers/farms_providers.dart';
 import '../widgets/farm_card.dart';
@@ -58,10 +58,12 @@ class FarmsScreen extends ConsumerWidget {
                               color: Theme.of(context).colorScheme.primary,
                             ),
                             const SizedBox(height: 16),
-                            const Text(
+                            Text(
                               'Još nema registrovanih farmi.',
                               textAlign: TextAlign.center,
-                              style: TextStyle(color: AppColors.textMuted),
+                              style: TextStyle(
+                                color: context.surfaceColors.textMuted,
+                              ),
                             ),
                           ],
                         ),

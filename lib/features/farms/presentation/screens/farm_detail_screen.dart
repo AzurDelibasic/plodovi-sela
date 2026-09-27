@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_surface_colors.dart';
 import '../../../../core/widgets/screen_header.dart';
 import '../../../../core/widgets/soft_card.dart';
 import '../../../listings/presentation/providers/listings_providers.dart';
@@ -80,8 +81,8 @@ class FarmDetailScreen extends ConsumerWidget {
                                 if (farm.cityName != null)
                                   Text(
                                     farm.cityName!,
-                                    style: const TextStyle(
-                                      color: AppColors.textMuted,
+                                    style: TextStyle(
+                                      color: context.surfaceColors.textMuted,
                                     ),
                                   ),
                                 const SizedBox(height: 4),
@@ -156,9 +157,9 @@ class _FarmListings extends ConsumerWidget {
       error: (error, _) => const Text('Nije uspjelo učitavanje oglasa.'),
       data: (listings) {
         if (listings.isEmpty) {
-          return const Text(
+          return Text(
             'Ova farma trenutno nema aktivnih oglasa.',
-            style: TextStyle(color: AppColors.textMuted),
+            style: TextStyle(color: context.surfaceColors.textMuted),
           );
         }
         return Column(
@@ -189,9 +190,9 @@ class _FarmReviews extends ConsumerWidget {
       error: (error, _) => const Text('Nije uspjelo učitavanje recenzija.'),
       data: (reviews) {
         if (reviews.isEmpty) {
-          return const Text(
+          return Text(
             'Još nema recenzija za ovu farmu.',
-            style: TextStyle(color: AppColors.textMuted),
+            style: TextStyle(color: context.surfaceColors.textMuted),
           );
         }
         return Column(
@@ -232,9 +233,9 @@ class _ReviewTile extends StatelessWidget {
               const Spacer(),
               Text(
                 _formatDate(review.createdAt),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textMuted,
+                  color: context.surfaceColors.textMuted,
                 ),
               ),
             ],

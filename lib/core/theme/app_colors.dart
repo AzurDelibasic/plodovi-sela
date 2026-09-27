@@ -11,12 +11,9 @@ abstract final class AppColors {
   static const secondarySeed = Color(0xFFB8923D); // harvest gold, sparingly
   static const error = Color(0xFFBA1A1A);
 
-  static const background = Color(0xFFFAFAF7);
-  static const surface = Color(0xFFFFFFFF);
-  static const outline = Color(0xFFE8E8E3);
-
-  static const textPrimary = Color(0xFF1B1D1B);
-  static const textMuted = Color(0xFF6E7268);
+  // Background/surface/outline/text tokens now live on [AppSurfaceColors]
+  // (see app_surface_colors.dart) since those must invert for dark mode —
+  // read them via `context.surfaceColors` instead.
 
   // Order status accents — muted, not primary-colored, so they read as
   // state rather than as calls to action.

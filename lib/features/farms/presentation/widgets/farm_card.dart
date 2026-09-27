@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_surface_colors.dart';
 import '../../../../core/widgets/soft_card.dart';
 import '../../domain/entities/farm.dart';
 import 'farm_image_banner.dart';
@@ -15,6 +16,7 @@ class FarmCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final surfaceColors = context.surfaceColors;
 
     return SoftCard(
       margin: const EdgeInsets.only(bottom: 12),
@@ -59,17 +61,17 @@ class FarmCard extends StatelessWidget {
                         const SizedBox(height: 2),
                         Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.place_outlined,
                               size: 13,
-                              color: AppColors.textMuted,
+                              color: surfaceColors.textMuted,
                             ),
                             const SizedBox(width: 2),
                             Text(
                               farm.cityName!,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
-                                color: AppColors.textMuted,
+                                color: surfaceColors.textMuted,
                               ),
                             ),
                           ],
@@ -95,9 +97,9 @@ class FarmCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Icon(
+                Icon(
                   Icons.chevron_right_rounded,
-                  color: AppColors.textMuted,
+                  color: surfaceColors.textMuted,
                 ),
               ],
             ),

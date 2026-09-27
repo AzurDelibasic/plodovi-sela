@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_router.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_surface_colors.dart';
+import '../../../../core/theme/theme_mode_provider.dart';
 import '../../../../core/widgets/screen_header.dart';
 import '../../../../core/widgets/soft_card.dart';
 import '../../../auth/domain/entities/app_role.dart';
@@ -58,17 +59,27 @@ class ProfileScreen extends ConsumerWidget {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                 children: [
+                  Text(
+                    'Izgled aplikacije',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  const _ThemeModeSelector(),
+                  const SizedBox(height: 24),
                   if (user?.role == AppRole.prodavac) ...[
                     SoftCard(
                       onTap: () => context.push(AppRoutes.editProfile),
-                      child: const Row(
+                      child: Row(
                         children: [
-                          Icon(Icons.storefront_outlined, color: AppColors.textMuted),
-                          SizedBox(width: 12),
-                          Expanded(child: Text('Uredi profil farme')),
+                          Icon(
+                            Icons.storefront_outlined,
+                            color: context.surfaceColors.textMuted,
+                          ),
+                          const SizedBox(width: 12),
+                          const Expanded(child: Text('Uredi profil farme')),
                           Icon(
                             Icons.chevron_right_rounded,
-                            color: AppColors.textMuted,
+                            color: context.surfaceColors.textMuted,
                           ),
                         ],
                       ),
@@ -134,7 +145,7 @@ class _OrdersList extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text(
               asSeller ? 'Još nema primljenih narudžbi.' : 'Još nema narudžbi.',
-              style: const TextStyle(color: AppColors.textMuted),
+              style: TextStyle(color: context.surfaceColors.textMuted),
             ),
           );
         }
@@ -145,6 +156,43 @@ class _OrdersList extends ConsumerWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class _ThemeModeSelector extends ConsumerWidget {
+  const _ThemeModeSelector();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+
+    return SoftCard(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      child: SegmentedButton<ThemeMode>(
+        segments: const [
+          ButtonSegment(
+            value: ThemeMode.light,
+            icon: Icon(Icons.light_mode_outlined, size: 18),
+            label: Text('Svijetla'),
+          ),
+          ButtonSegment(
+            value: ThemeMode.dark,
+            icon: Icon(Icons.dark_mode_outlined, size: 18),
+            label: Text('Tamna'),
+          ),
+          ButtonSegment(
+            value: ThemeMode.system,
+            icon: Icon(Icons.smartphone_outlined, size: 18),
+            label: Text('Sistem'),
+          ),
+        ],
+        selected: {themeMode},
+        showSelectedIcon: false,
+        onSelectionChanged: (selection) => ref
+            .read(themeModeProvider.notifier)
+            .setThemeMode(selection.first),
+      ),
     );
   }
 }

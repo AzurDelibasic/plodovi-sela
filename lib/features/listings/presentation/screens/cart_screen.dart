@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_surface_colors.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/screen_header.dart';
 import '../../../../core/widgets/soft_card.dart';
@@ -111,9 +111,11 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                               color: Theme.of(context).colorScheme.primary,
                             ),
                             const SizedBox(height: 16),
-                            const Text(
+                            Text(
                               'Korpa je prazna.',
-                              style: TextStyle(color: AppColors.textMuted),
+                              style: TextStyle(
+                                color: context.surfaceColors.textMuted,
+                              ),
                             ),
                           ],
                         ),
@@ -211,9 +213,9 @@ class _CartItemTileState extends ConsumerState<_CartItemTile> {
                   const SizedBox(height: 2),
                   Text(
                     item.sellerName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textMuted,
+                      color: context.surfaceColors.textMuted,
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -272,16 +274,17 @@ class _CheckoutBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: context.surfaceColors.surface,
         boxShadow: [
           BoxShadow(
-            color: Color(0x0A000000),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.04),
             blurRadius: 16,
-            offset: Offset(0, -4),
+            offset: const Offset(0, -4),
           ),
         ],
       ),
