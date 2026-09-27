@@ -15,6 +15,7 @@ class Listing extends Equatable {
     required this.pickupAvailable,
     required this.deliveryAvailable,
     this.description,
+    this.imageUrls = const [],
   });
 
   final String id;
@@ -31,6 +32,9 @@ class Listing extends Equatable {
   final bool pickupAvailable;
   final bool deliveryAvailable;
 
+  /// Public URLs, ordered — empty when the seller hasn't attached photos.
+  final List<String> imageUrls;
+
   @override
   List<Object?> get props => [
     id,
@@ -46,5 +50,6 @@ class Listing extends Equatable {
     isOrganic,
     pickupAvailable,
     deliveryAvailable,
+    imageUrls,
   ];
 }

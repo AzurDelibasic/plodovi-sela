@@ -46,7 +46,8 @@ class FarmsRemoteDataSource {
           .select(
             'id, seller_id, title, description, price, unit, category_id, '
             'is_organic, pickup_available, delivery_available, '
-            'categories(name), cities(name), profiles(full_name)',
+            'categories(name), cities(name), profiles(full_name), '
+            'listing_images(storage_path, position)',
           )
           .eq('status', 'active')
           .eq('seller_id', sellerId)
@@ -54,7 +55,13 @@ class FarmsRemoteDataSource {
 
       return (rows as List)
           .cast<Map<String, dynamic>>()
-          .map(ListingModel.fromJson)
+          .map(
+            (row) => ListingModel.fromJson(
+              row,
+              resolveImageUrl: (path) =>
+                  _client.storage.from('listing-images').getPublicUrl(path),
+            ),
+          )
           .toList();
     } on supabase.PostgrestException catch (e) {
       throw ServerException(e.message);

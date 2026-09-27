@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:fpdart/fpdart.dart';
 
 import '../../../../core/error/failures.dart';
@@ -9,6 +11,22 @@ import '../entities/listing.dart';
 abstract interface class ListingsRepository {
   /// Active listings, newest first.
   Future<Either<Failure, List<Listing>>> getActiveListings();
+
+  /// Publishes a new listing for the caller (must hold the `prodavac`
+  /// role — enforced server-side by RLS). [images] are JPEG bytes, in
+  /// display order.
+  Future<Either<Failure, Listing>> createListing({
+    required String title,
+    String? description,
+    required double price,
+    required String unit,
+    required int categoryId,
+    required int cityId,
+    required bool isOrganic,
+    required bool pickupAvailable,
+    required bool deliveryAvailable,
+    required List<Uint8List> images,
+  });
 
   Future<Either<Failure, List<Category>>> getCategories();
 

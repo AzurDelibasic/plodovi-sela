@@ -12,6 +12,7 @@ import '../../domain/usecases/sign_in_with_google_usecase.dart';
 import '../../domain/usecases/set_password_usecase.dart';
 import '../../domain/usecases/sign_out_usecase.dart';
 import '../../domain/usecases/sign_up_usecase.dart';
+import '../../domain/usecases/update_profile_usecase.dart';
 
 // --- Dependency wiring -----------------------------------------------------
 
@@ -53,6 +54,10 @@ final requestSellerUpgradeUseCaseProvider =
 
 final setPasswordUseCaseProvider = Provider<SetPasswordUseCase>((ref) {
   return SetPasswordUseCase(ref.watch(authRepositoryProvider));
+});
+
+final updateProfileUseCaseProvider = Provider<UpdateProfileUseCase>((ref) {
+  return UpdateProfileUseCase(ref.watch(authRepositoryProvider));
 });
 
 // --- Auth session state -----------------------------------------------------

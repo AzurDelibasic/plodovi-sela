@@ -1,8 +1,12 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/screen_header.dart';
+import '../../../../core/widgets/soft_card.dart';
 import '../../../auth/domain/entities/app_role.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../domain/entities/order.dart';
@@ -32,10 +36,15 @@ class ProfileScreen extends ConsumerWidget {
                 backgroundColor: Theme.of(
                   context,
                 ).colorScheme.primary.withValues(alpha: 0.08),
-                child: Icon(
-                  Icons.person_outline,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                backgroundImage: user?.avatarUrl != null
+                    ? CachedNetworkImageProvider(user!.avatarUrl!)
+                    : null,
+                child: user?.avatarUrl == null
+                    ? Icon(
+                        Icons.person_outline,
+                        color: Theme.of(context).colorScheme.primary,
+                      )
+                    : null,
               ),
               actions: [
                 HeaderIconButton(
@@ -49,6 +58,23 @@ class ProfileScreen extends ConsumerWidget {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                 children: [
+                  if (user?.role == AppRole.prodavac) ...[
+                    SoftCard(
+                      onTap: () => context.push(AppRoutes.editProfile),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.storefront_outlined, color: AppColors.textMuted),
+                          SizedBox(width: 12),
+                          Expanded(child: Text('Uredi profil farme')),
+                          Icon(
+                            Icons.chevron_right_rounded,
+                            color: AppColors.textMuted,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
                   Text(
                     'Moje narudžbe',
                     style: Theme.of(context).textTheme.titleMedium,

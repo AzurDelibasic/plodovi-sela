@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:fpdart/fpdart.dart';
 
 import '../../../../core/error/failures.dart';
@@ -40,4 +42,15 @@ abstract interface class AuthRepository {
   /// Adds an e-mail/password sign-in method to the current (Google-only)
   /// account. See [AppUser.hasPasswordIdentity].
   Future<Either<Failure, Unit>> setPassword(String password);
+
+  /// Updates the caller's own storefront fields — a seller's public name,
+  /// bio, city and avatar. Every field is optional; only the ones passed
+  /// are changed. [authStateChanges] re-emits the refreshed user on
+  /// success.
+  Future<Either<Failure, Unit>> updateProfile({
+    String? fullName,
+    String? bio,
+    int? cityId,
+    Uint8List? avatarBytes,
+  });
 }

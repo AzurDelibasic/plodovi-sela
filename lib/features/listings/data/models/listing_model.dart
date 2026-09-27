@@ -15,13 +15,27 @@ class ListingModel extends Listing {
     required super.pickupAvailable,
     required super.deliveryAvailable,
     super.description,
+    super.imageUrls,
   });
 
-  factory ListingModel.fromJson(Map<String, dynamic> json) {
+  /// [resolveImageUrl] turns a `listing_images.storage_path` into a public
+  /// URL — passed in by the datasource, which is the one holding the
+  /// Supabase client's storage API.
+  factory ListingModel.fromJson(
+    Map<String, dynamic> json, {
+    required String Function(String path) resolveImageUrl,
+  }) {
     final category = json['categories'] as Map<String, dynamic>?;
     final city = json['cities'] as Map<String, dynamic>?;
     final seller = json['profiles'] as Map<String, dynamic>?;
     final sellerName = (seller?['full_name'] as String?)?.trim();
+
+    final images = (json['listing_images'] as List?)
+        ?.cast<Map<String, dynamic>>()
+        .toList();
+    images?.sort(
+      (a, b) => (a['position'] as int).compareTo(b['position'] as int),
+    );
 
     return ListingModel(
       id: json['id'] as String,
@@ -39,6 +53,10 @@ class ListingModel extends Listing {
       isOrganic: json['is_organic'] as bool,
       pickupAvailable: json['pickup_available'] as bool,
       deliveryAvailable: json['delivery_available'] as bool,
+      imageUrls: [
+        for (final image in images ?? const <Map<String, dynamic>>[])
+          resolveImageUrl(image['storage_path'] as String),
+      ],
     );
   }
 }

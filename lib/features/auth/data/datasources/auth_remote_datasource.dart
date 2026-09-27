@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
@@ -64,6 +65,10 @@ class AuthRemoteDataSource {
         fullName:
             row['full_name'] as String? ??
             user.userMetadata?['full_name'] as String?,
+        avatarUrl: row['avatar_url'] as String?,
+        bio: row['bio'] as String?,
+        cityId: row['city_id'] as int?,
+        cityName: row['city_name'] as String?,
       );
     } catch (_) {
       return AppUserModel.fromSupabaseUser(user, role: AppRole.kupac);
@@ -187,6 +192,61 @@ class AuthRemoteDataSource {
       throw AuthException(e.message);
     } on supabase.PostgrestException catch (e) {
       throw AuthException(e.message);
+    }
+  }
+
+  /// Updates the caller's own storefront fields (name/avatar/bio/city) and
+  /// re-broadcasts the refreshed profile — same reasoning as [setPassword]:
+  /// don't wait for a Supabase auth event that will never fire for a
+  /// `public.profiles` write.
+  Future<void> updateProfile({
+    String? fullName,
+    String? bio,
+    int? cityId,
+    Uint8List? avatarBytes,
+  }) async {
+    try {
+      final user = _client.auth.currentUser;
+      if (user == null) {
+        throw const AuthException('Niste prijavljeni.');
+      }
+
+      String? avatarUrl;
+      if (avatarBytes != null) {
+        final path = '${user.id}/avatar.jpg';
+        await _client.storage
+            .from('avatars')
+            .uploadBinary(
+              path,
+              avatarBytes,
+              fileOptions: const supabase.FileOptions(
+                contentType: 'image/jpeg',
+                upsert: true,
+              ),
+            );
+        avatarUrl =
+            '${_client.storage.from('avatars').getPublicUrl(path)}'
+            '?v=${DateTime.now().millisecondsSinceEpoch}';
+      }
+
+      final updates = <String, dynamic>{
+        if (fullName != null) 'full_name': fullName,
+        if (bio != null) 'bio': bio,
+        if (cityId != null) 'city_id': cityId,
+        if (avatarUrl != null) 'avatar_url': avatarUrl,
+      };
+      if (updates.isNotEmpty) {
+        await _client.from('profiles').update(updates).eq('id', user.id);
+      }
+
+      final refreshed = await _fetchProfile(user);
+      _cachedUser = refreshed;
+      _hasEmittedOnce = true;
+      _controller.add(refreshed);
+    } on supabase.StorageException catch (e) {
+      throw ServerException(e.message);
+    } on supabase.PostgrestException catch (e) {
+      throw ServerException(e.message);
     }
   }
 

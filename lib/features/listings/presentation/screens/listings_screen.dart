@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/screen_header.dart';
+import '../../../auth/domain/entities/app_role.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../domain/entities/listing.dart';
 import '../providers/listings_providers.dart';
@@ -25,6 +26,13 @@ class ListingsScreen extends ConsumerWidget {
     final cartCount = ref.watch(cartItemCountProvider).asData?.value ?? 0;
 
     return Scaffold(
+      floatingActionButton: user?.role == AppRole.prodavac
+          ? FloatingActionButton.extended(
+              onPressed: () => context.push(AppRoutes.createListing),
+              icon: const Icon(Icons.add),
+              label: const Text('Novi oglas'),
+            )
+          : null,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

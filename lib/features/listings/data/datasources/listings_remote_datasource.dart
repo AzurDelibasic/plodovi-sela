@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 import '../../../../core/error/exceptions.dart';
@@ -6,28 +8,109 @@ import '../models/category_model.dart';
 import '../models/city_model.dart';
 import '../models/listing_model.dart';
 
+const _listingSelect =
+    'id, seller_id, title, description, price, unit, category_id, '
+    'is_organic, pickup_available, delivery_available, '
+    'categories(name), cities(name), profiles(full_name), '
+    'listing_images(storage_path, position)';
+
 class ListingsRemoteDataSource {
   ListingsRemoteDataSource(this._client);
 
   final supabase.SupabaseClient _client;
 
+  String _resolveImageUrl(String path) =>
+      _client.storage.from('listing-images').getPublicUrl(path);
+
   Future<List<ListingModel>> getActiveListings() async {
     try {
       final rows = await _client
           .from('listings')
-          .select(
-            'id, seller_id, title, description, price, unit, category_id, '
-            'is_organic, pickup_available, delivery_available, '
-            'categories(name), cities(name), profiles(full_name)',
-          )
+          .select(_listingSelect)
           .eq('status', 'active')
           .order('created_at', ascending: false);
 
       return (rows as List)
           .cast<Map<String, dynamic>>()
-          .map(ListingModel.fromJson)
+          .map(
+            (row) => ListingModel.fromJson(
+              row,
+              resolveImageUrl: _resolveImageUrl,
+            ),
+          )
           .toList();
     } on supabase.PostgrestException catch (e) {
+      throw ServerException(e.message);
+    }
+  }
+
+  /// Inserts a new listing owned by the caller, uploads its photos (if any)
+  /// to the `listing-images` bucket under `<sellerId>/<listingId>/`, then
+  /// links them via `listing_images` rows. Returns the listing exactly as
+  /// [getActiveListings] would return it, images included.
+  Future<ListingModel> createListing({
+    required String title,
+    String? description,
+    required double price,
+    required String unit,
+    required int categoryId,
+    required int cityId,
+    required bool isOrganic,
+    required bool pickupAvailable,
+    required bool deliveryAvailable,
+    required List<Uint8List> images,
+  }) async {
+    try {
+      final sellerId = _client.auth.currentUser?.id;
+      if (sellerId == null) {
+        throw const ServerException('Niste prijavljeni.');
+      }
+
+      final inserted = await _client
+          .from('listings')
+          .insert({
+            'seller_id': sellerId,
+            'title': title,
+            'description': description,
+            'price': price,
+            'unit': unit,
+            'category_id': categoryId,
+            'city_id': cityId,
+            'is_organic': isOrganic,
+            'pickup_available': pickupAvailable,
+            'delivery_available': deliveryAvailable,
+          })
+          .select('id')
+          .single();
+      final listingId = inserted['id'] as String;
+
+      for (var i = 0; i < images.length; i++) {
+        final path = '$sellerId/$listingId/$i.jpg';
+        await _client.storage
+            .from('listing-images')
+            .uploadBinary(
+              path,
+              images[i],
+              fileOptions: const supabase.FileOptions(
+                contentType: 'image/jpeg',
+              ),
+            );
+        await _client.from('listing_images').insert({
+          'listing_id': listingId,
+          'storage_path': path,
+          'position': i,
+        });
+      }
+
+      final row = await _client
+          .from('listings')
+          .select(_listingSelect)
+          .eq('id', listingId)
+          .single();
+      return ListingModel.fromJson(row, resolveImageUrl: _resolveImageUrl);
+    } on supabase.PostgrestException catch (e) {
+      throw ServerException(e.message);
+    } on supabase.StorageException catch (e) {
       throw ServerException(e.message);
     }
   }

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:fpdart/fpdart.dart';
 
 import '../../../../core/error/exceptions.dart';
@@ -19,6 +21,40 @@ class ListingsRepositoryImpl implements ListingsRepository {
     try {
       final listings = await _remote.getActiveListings();
       return Right(listings);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (_) {
+      return const Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Listing>> createListing({
+    required String title,
+    String? description,
+    required double price,
+    required String unit,
+    required int categoryId,
+    required int cityId,
+    required bool isOrganic,
+    required bool pickupAvailable,
+    required bool deliveryAvailable,
+    required List<Uint8List> images,
+  }) async {
+    try {
+      final listing = await _remote.createListing(
+        title: title,
+        description: description,
+        price: price,
+        unit: unit,
+        categoryId: categoryId,
+        cityId: cityId,
+        isOrganic: isOrganic,
+        pickupAvailable: pickupAvailable,
+        deliveryAvailable: deliveryAvailable,
+        images: images,
+      );
+      return Right(listing);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (_) {

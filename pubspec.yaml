@@ -41,6 +41,8 @@ dependencies:
   fpdart: ^1.2.0
   equatable: ^3.0.0
   google_fonts: ^8.1.0
+  image_picker: ^1.1.2
+  cached_network_image: ^3.4.1
 
 dev_dependencies:
   flutter_test:

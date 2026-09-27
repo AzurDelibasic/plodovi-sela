@@ -8,7 +8,9 @@ import '../../features/auth/presentation/screens/set_password_screen.dart';
 import '../../features/farms/presentation/screens/farm_detail_screen.dart';
 import '../../features/farms/presentation/screens/farms_screen.dart';
 import '../../features/listings/presentation/screens/cart_screen.dart';
+import '../../features/listings/presentation/screens/create_listing_screen.dart';
 import '../../features/listings/presentation/screens/listings_screen.dart';
+import '../../features/orders/presentation/screens/edit_profile_screen.dart';
 import '../../features/orders/presentation/screens/profile_screen.dart';
 import 'go_router_refresh_stream.dart';
 import 'main_shell.dart';
@@ -22,6 +24,8 @@ abstract final class AppRoutes {
   static const farmDetail = '/farms/detail'; // + '/<sellerId>'
   static const profile = '/profile';
   static const cart = '/cart';
+  static const createListing = '/listings/new';
+  static const editProfile = '/profile/edit';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -103,6 +107,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.cart,
         builder: (context, state) => const CartScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.createListing,
+        builder: (context, state) => const CreateListingScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.editProfile,
+        builder: (context, state) => const EditProfileScreen(),
       ),
     ],
   );

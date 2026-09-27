@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -23,7 +24,7 @@ class FarmCard extends StatelessWidget {
             radius: 26,
             backgroundColor: colorScheme.primary.withValues(alpha: 0.08),
             backgroundImage: farm.avatarUrl != null
-                ? NetworkImage(farm.avatarUrl!)
+                ? CachedNetworkImageProvider(farm.avatarUrl!)
                 : null,
             child: farm.avatarUrl == null
                 ? Icon(

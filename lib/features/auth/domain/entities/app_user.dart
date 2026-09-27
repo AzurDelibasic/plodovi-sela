@@ -13,12 +13,23 @@ class AppUser extends Equatable {
     required this.role,
     required this.hasPasswordIdentity,
     this.fullName,
+    this.avatarUrl,
+    this.bio,
+    this.cityId,
+    this.cityName,
   });
 
   final String id;
   final String email;
   final AppRole role;
   final String? fullName;
+
+  /// Storefront fields — only meaningful for a `prodavac` ("farm"), but
+  /// harmless to carry on every user.
+  final String? avatarUrl;
+  final String? bio;
+  final int? cityId;
+  final String? cityName;
 
   /// Whether this account can sign in with e-mail + password. `false` for
   /// an account created purely through Google — the router forces those
@@ -28,5 +39,15 @@ class AppUser extends Equatable {
   final bool hasPasswordIdentity;
 
   @override
-  List<Object?> get props => [id, email, role, fullName, hasPasswordIdentity];
+  List<Object?> get props => [
+    id,
+    email,
+    role,
+    fullName,
+    avatarUrl,
+    bio,
+    cityId,
+    cityName,
+    hasPasswordIdentity,
+  ];
 }

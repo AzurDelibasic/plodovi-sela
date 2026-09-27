@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -54,18 +55,45 @@ class _ListingCardState extends ConsumerState<ListingCard> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: colorScheme.primary.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(
-              Icons.eco_outlined,
-              color: colorScheme.primary,
-              size: 24,
-            ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            child: listing.imageUrls.isEmpty
+                ? Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(
+                      Icons.eco_outlined,
+                      color: colorScheme.primary,
+                      size: 24,
+                    ),
+                  )
+                : CachedNetworkImage(
+                    imageUrl: listing.imageUrls.first,
+                    width: 56,
+                    height: 56,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      width: 56,
+                      height: 56,
+                      color: colorScheme.primary.withValues(alpha: 0.08),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary.withValues(alpha: 0.08),
+                      ),
+                      child: Icon(
+                        Icons.eco_outlined,
+                        color: colorScheme.primary,
+                        size: 24,
+                      ),
+                    ),
+                  ),
           ),
           const SizedBox(width: 14),
           Expanded(

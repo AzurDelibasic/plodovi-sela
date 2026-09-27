@@ -12,6 +12,10 @@ class AppUserModel extends AppUser {
     required super.role,
     required super.hasPasswordIdentity,
     super.fullName,
+    super.avatarUrl,
+    super.bio,
+    super.cityId,
+    super.cityName,
   });
 
   factory AppUserModel.fromSupabaseUser(

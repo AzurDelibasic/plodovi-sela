@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:fpdart/fpdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
@@ -116,6 +118,30 @@ class AuthRepositoryImpl implements AuthRepository {
       return const Right(unit);
     } on AuthException catch (e) {
       return Left(AuthFailure(translateAuthError(e.message)));
+    } catch (_) {
+      return const Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> updateProfile({
+    String? fullName,
+    String? bio,
+    int? cityId,
+    Uint8List? avatarBytes,
+  }) async {
+    try {
+      await _remote.updateProfile(
+        fullName: fullName,
+        bio: bio,
+        cityId: cityId,
+        avatarBytes: avatarBytes,
+      );
+      return const Right(unit);
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
     } catch (_) {
       return const Left(ServerFailure());
     }

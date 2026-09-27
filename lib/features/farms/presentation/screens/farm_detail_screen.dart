@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -50,7 +51,7 @@ class FarmDetailScreen extends ConsumerWidget {
                               alpha: 0.08,
                             ),
                             backgroundImage: farm.avatarUrl != null
-                                ? NetworkImage(farm.avatarUrl!)
+                                ? CachedNetworkImageProvider(farm.avatarUrl!)
                                 : null,
                             child: farm.avatarUrl == null
                                 ? Icon(
