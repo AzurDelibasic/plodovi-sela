@@ -7,6 +7,7 @@ import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/soft_card.dart';
 import '../../domain/entities/listing.dart';
 import '../providers/listings_providers.dart';
+import 'listing_image_viewer.dart';
 
 class ListingCard extends ConsumerStatefulWidget {
   const ListingCard({super.key, required this.listing, this.cartQuantity = 0});
@@ -55,45 +56,93 @@ class _ListingCardState extends ConsumerState<ListingCard> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(14),
-            child: listing.imageUrls.isEmpty
-                ? Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: colorScheme.primary.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Icon(
-                      Icons.eco_outlined,
-                      color: colorScheme.primary,
-                      size: 24,
-                    ),
-                  )
-                : CachedNetworkImage(
-                    imageUrl: listing.imageUrls.first,
-                    width: 56,
-                    height: 56,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      width: 56,
-                      height: 56,
-                      color: colorScheme.primary.withValues(alpha: 0.08),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary.withValues(alpha: 0.08),
+          GestureDetector(
+            onTap: listing.imageUrls.isEmpty
+                ? null
+                : () => ListingImageViewer.open(
+                    context,
+                    imageUrls: listing.imageUrls,
+                  ),
+            child: Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: listing.imageUrls.isEmpty
+                      ? Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Icon(
+                            Icons.eco_outlined,
+                            color: colorScheme.primary,
+                            size: 24,
+                          ),
+                        )
+                      : CachedNetworkImage(
+                          imageUrl: listing.imageUrls.first,
+                          width: 56,
+                          height: 56,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Container(
+                            width: 56,
+                            height: 56,
+                            color: colorScheme.primary.withValues(alpha: 0.08),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            width: 56,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              color: colorScheme.primary.withValues(
+                                alpha: 0.08,
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.eco_outlined,
+                              color: colorScheme.primary,
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                ),
+                if (listing.imageUrls.length > 1)
+                  Positioned(
+                    right: 3,
+                    bottom: 3,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 5,
+                        vertical: 1,
                       ),
-                      child: Icon(
-                        Icons.eco_outlined,
-                        color: colorScheme.primary,
-                        size: 24,
+                      decoration: BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.photo_library_outlined,
+                            size: 10,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            '${listing.imageUrls.length}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
+              ],
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(
